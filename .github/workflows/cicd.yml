@@ -1,4 +1,5 @@
-name: Линтер и Телеграм
+name: Linter and Telegram
+
 on:
   push:
     branches:
@@ -9,24 +10,33 @@ on:
 
 jobs:
   build:
-    name: Запуск CSS линтера
+    name: Run CSS linter
     runs-on: ubuntu-latest
     steps:
-    - name: Send telegram message on push
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TG_ID }}
-        token: ${{ secrets.TG_TOKEN }}
-        message: |
-          ${{ github.actor }} создал новый коммит: ${{ github.event.commits[0].message }}
-          Ссылка на коммит: https://github.com/${{ github.repository }}/commit/${{github.sha}}
-          Репозиторий: https://github.com/${{ github.repository }}
+      - name: Send Telegram message on push
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TG_ID }}
+          token: ${{ secrets.TG_TOKEN }}
+          message: |
+            ${{ github.actor }} created a new commit: ${{ github.event.commits[0].message }}
+            Commit link: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+            Repository: https://github.com/${{ github.repository }}
             
-          CI/CD github actions: https://github.com/${{ github.repository }}/actions
-          https://github.com/${{ github.repository }}/actions/runs/${{github.run_id}}
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Пройти проверки CSS линтера
-      uses: actions-hub/stylelint@master
-      env:        
-        PATTERN: "**/*.css"
+            CI/CD GitHub Actions: https://github.com/${{ github.repository }}/actions
+            Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install Stylelint
+        run: npm install stylelint
+
+      - name: Lint CSS files
+        run: npx stylelint "**/*.css"
+
